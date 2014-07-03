@@ -1,0 +1,7 @@
+
+Bundle 'vim-latex/vim-latex'
+Bundle 'myusuf3/numbers.vim'
+Bundle 'editorconfig/editorconfig-vim'
+Bundle 'tpope/vim-markdown'
+Bundle 'digitaltoad/vim-jade'
+

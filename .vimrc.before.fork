@@ -1,0 +1,10 @@
+
+let g:spf13_bundle_groups=['general', 'neocomplcache', 'programming', 'python', 'javascript', 'html']
+
+" fix terminal colors
+" http://askubuntu.com/questions/67/how-do-i-enable-full-color-support-in-vim
+if $COLORTERM == 'gnome-terminal'
+    set t_Co=256
+endif
+
+let g:airline_powerline_fonts=1
