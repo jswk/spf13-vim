@@ -7,3 +7,7 @@ let g:indent_guides_enable_on_vim_startup = 0
 let g:tex_flavor='latex'
 
 let g:syntastic_cpp_compiler_options = ' -std=c++11'
+
+let g:ctrlp_working_path_mode = 'r'
+
+let g:load_doxygen_syntax=1
