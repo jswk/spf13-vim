@@ -13,6 +13,20 @@
 "   recommend picking out the parts you want and understand.
 "
 "   You can find me at http://spf13.com
+"
+"   Copyright 2014 Steve Francia
+"
+"   Licensed under the Apache License, Version 2.0 (the "License");
+"   you may not use this file except in compliance with the License.
+"   You may obtain a copy of the License at
+"
+"       http://www.apache.org/licenses/LICENSE-2.0
+"
+"   Unless required by applicable law or agreed to in writing, software
+"   distributed under the License is distributed on an "AS IS" BASIS,
+"   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+"   See the License for the specific language governing permissions and
+"   limitations under the License.
 " }
 
 " Environment {
@@ -25,7 +39,7 @@
             return has('unix') && !has('macunix') && !has('win32unix')
         endfunction
         silent function! WINDOWS()
-            return  (has('win16') || has('win32') || has('win64'))
+            return  (has('win32') || has('win64'))
         endfunction
     " }
 
@@ -41,6 +55,13 @@
         " across (heterogeneous) systems easier.
         if WINDOWS()
           set runtimepath=$HOME/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,$HOME/.vim/after
+        endif
+    " }
+    
+    " Arrow Key Fix {
+        " https://github.com/spf13/spf13-vim/issues/780
+        if &term[:4] == "xterm" || &term[:5] == 'screen' || &term[:3] == 'rxvt'
+            inoremap <silent> <C-[>OC <RIGHT>
         endif
     " }
 
@@ -61,6 +82,19 @@
 " General {
 
     set background=dark         " Assume a dark background
+
+    " Allow to trigger background
+    function! ToggleBG()
+        let s:tbg = &background
+        " Inversion
+        if s:tbg == "dark"
+            set background=light
+        else
+            set background=dark
+        endif
+    endfunction
+    noremap <leader>bg :call ToggleBG()<CR>
+
     " if !has('gui')
         "set term=$TERM          " Make arrow and other keys work
     " endif
@@ -109,7 +143,7 @@
     if !exists('g:spf13_no_restore_cursor')
         function! ResCur()
             if line("'\"") <= line("$")
-                normal! g`"
+                silent! normal! g`"
                 return 1
             endif
         endfunction
@@ -143,7 +177,7 @@
 
 " Vim UI {
 
-    if filereadable(expand("~/.vim/bundle/vim-colors-solarized/colors/solarized.vim"))
+    if !exists('g:override_spf13_bundles') && filereadable(expand("~/.vim/bundle/vim-colors-solarized/colors/solarized.vim"))
         let g:solarized_termcolors=256
         let g:solarized_termtrans=1
         let g:solarized_contrast="normal"
@@ -158,7 +192,6 @@
 
     highlight clear SignColumn      " SignColumn should match background
     highlight clear LineNr          " Current line number row will have same background color in relative mode
-    let g:CSApprox_hook_post = ['hi clear SignColumn']
     "highlight clear CursorLineNr    " Remove highlight color from current line number
 
     if has('cmdline_info')
@@ -174,7 +207,9 @@
         " Broken down into easily includeable segments
         set statusline=%<%f\                     " Filename
         set statusline+=%w%h%m%r                 " Options
-        set statusline+=%{fugitive#statusline()} " Git Hotness
+        if !exists('g:override_spf13_bundles')
+            set statusline+=%{fugitive#statusline()} " Git Hotness
+        endif
         set statusline+=\ [%{&ff}/%Y]            " Filetype
         set statusline+=\ [%{getcwd()}]          " Current dir
         set statusline+=%=%-14.(%l,%c%V%)\ %p%%  " Right aligned file nav info
@@ -182,7 +217,7 @@
 
     set backspace=indent,eol,start  " Backspace for dummies
     set linespace=0                 " No extra spaces between rows
-    set nu                          " Line numbers on
+    set number                      " Line numbers on
     set showmatch                   " Show matching brackets/parenthesis
     set incsearch                   " Find as you type search
     set hlsearch                    " Highlight search terms
@@ -218,10 +253,10 @@
     " To disable the stripping of whitespace, add the following to your
     " .vimrc.before.local file:
     "   let g:spf13_keep_trailing_whitespace = 1
-    autocmd FileType c,cpp,java,go,php,javascript,python,twig,xml,yml,perl autocmd BufWritePre <buffer> if !exists('g:spf13_keep_trailing_whitespace') | call StripTrailingWhitespace() | endif
+    autocmd FileType c,cpp,java,go,php,javascript,puppet,python,rust,twig,xml,yml,perl,sql autocmd BufWritePre <buffer> if !exists('g:spf13_keep_trailing_whitespace') | call StripTrailingWhitespace() | endif
     "autocmd FileType go autocmd BufWritePre <buffer> Fmt
     autocmd BufNewFile,BufRead *.html.twig set filetype=html.twig
-    autocmd FileType haskell setlocal expandtab shiftwidth=2 softtabstop=2
+    autocmd FileType haskell,puppet,ruby,yml setlocal expandtab shiftwidth=2 softtabstop=2
     " preceding line best in a plugin but here for now.
 
     autocmd BufNewFile,BufRead *.coffee set filetype=coffee
@@ -229,7 +264,7 @@
     " Workaround vim-commentary for Haskell
     autocmd FileType haskell setlocal commentstring=--\ %s
     " Workaround broken colour highlighting in Haskell
-    autocmd FileType haskell setlocal nospell
+    autocmd FileType haskell,rust setlocal nospell
 
 " }
 
@@ -248,6 +283,22 @@
         let maplocalleader = '_'
     else
         let maplocalleader=g:spf13_localleader
+    endif
+
+    " The default mappings for editing and applying the spf13 configuration
+    " are <leader>ev and <leader>sv respectively. Change them to your preference
+    " by adding the following to your .vimrc.before.local file:
+    "   let g:spf13_edit_config_mapping='<leader>ec'
+    "   let g:spf13_apply_config_mapping='<leader>sc'
+    if !exists('g:spf13_edit_config_mapping')
+        let s:spf13_edit_config_mapping = '<leader>ev'
+    else
+        let s:spf13_edit_config_mapping = g:spf13_edit_config_mapping
+    endif
+    if !exists('g:spf13_apply_config_mapping')
+        let s:spf13_apply_config_mapping = '<leader>sv'
+    else
+        let s:spf13_apply_config_mapping = g:spf13_apply_config_mapping
     endif
 
     " Easier moving in tabs and windows
@@ -379,7 +430,7 @@
 
     " Some helpers to edit mode
     " http://vimcasts.org/e/14
-    cnoremap %% <C-R>=expand('%:h').'/'<cr>
+    cnoremap %% <C-R>=fnameescape(expand('%:h')).'/'<cr>
     map <leader>ew :e %%
     map <leader>es :sp %%
     map <leader>ev :vsp %%
@@ -406,6 +457,29 @@
 " }
 
 " Plugins {
+
+    " GoLang {
+        if count(g:spf13_bundle_groups, 'go')
+            let g:go_highlight_functions = 1
+            let g:go_highlight_methods = 1
+            let g:go_highlight_structs = 1
+            let g:go_highlight_operators = 1
+            let g:go_highlight_build_constraints = 1
+            let g:go_fmt_command = "goimports"
+            let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
+            let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['go'] }
+            au FileType go nmap <Leader>s <Plug>(go-implements)
+            au FileType go nmap <Leader>i <Plug>(go-info)
+            au FileType go nmap <Leader>e <Plug>(go-rename)
+            au FileType go nmap <leader>r <Plug>(go-run)
+            au FileType go nmap <leader>b <Plug>(go-build)
+            au FileType go nmap <leader>t <Plug>(go-test)
+            au FileType go nmap <Leader>gd <Plug>(go-doc)
+            au FileType go nmap <Leader>gv <Plug>(go-doc-vertical)
+            au FileType go nmap <leader>co <Plug>(go-coverage)
+        endif
+        " }
+
 
     " TextObj Sentence {
         if count(g:spf13_bundle_groups, 'writing')
@@ -461,8 +535,10 @@
             hi PmenuThumb  guifg=#F8F8F8 guibg=#8A95A7 gui=NONE ctermfg=lightgray ctermbg=darkcyan cterm=NONE
 
             " Some convenient mappings
-            inoremap <expr> <Esc>      pumvisible() ? "\<C-e>" : "\<Esc>"
-            inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
+            "inoremap <expr> <Esc>      pumvisible() ? "\<C-e>" : "\<Esc>"
+            if exists('g:spf13_map_cr_omni_complete')
+                inoremap <expr> <CR>     pumvisible() ? "\<C-y>" : "\<CR>"
+            endif
             inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
             inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
             inoremap <expr> <C-d>      pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<C-d>"
@@ -503,7 +579,7 @@
             nmap <leader>nt :NERDTreeFind<CR>
 
             let NERDTreeShowBookmarks=1
-            let NERDTreeIgnore=['\.pyc', '\~$', '\.swo$', '\.swp$', '\.git', '\.hg', '\.svn', '\.bzr']
+            let NERDTreeIgnore=['\.py[cd]$', '\~$', '\.swo$', '\.swp$', '^\.git$', '^\.hg$', '^\.svn$', '\.bzr$']
             let NERDTreeChDirMode=0
             let NERDTreeQuitOnOpen=1
             let NERDTreeMouseMode=2
@@ -517,8 +593,10 @@
         if isdirectory(expand("~/.vim/bundle/tabular"))
             nmap <Leader>a& :Tabularize /&<CR>
             vmap <Leader>a& :Tabularize /&<CR>
-            nmap <Leader>a= :Tabularize /=<CR>
-            vmap <Leader>a= :Tabularize /=<CR>
+            nmap <Leader>a= :Tabularize /^[^=]*\zs=<CR>
+            vmap <Leader>a= :Tabularize /^[^=]*\zs=<CR>
+            nmap <Leader>a=> :Tabularize /=><CR>
+            vmap <Leader>a=> :Tabularize /=><CR>
             nmap <Leader>a: :Tabularize /:<CR>
             vmap <Leader>a: :Tabularize /:<CR>
             nmap <Leader>a:: :Tabularize /:\zs<CR>
@@ -543,11 +621,12 @@
 
     " JSON {
         nmap <leader>jt <Esc>:%!python -m json.tool<CR><Esc>:set filetype=json<CR>
+        let g:vim_json_syntax_conceal = 0
     " }
 
     " PyMode {
         " Disable if python support not present
-        if !has('python')
+        if !has('python') && !has('python3')
             let g:pymode = 0
         endif
 
@@ -568,17 +647,20 @@
                 \ 'dir':  '\.git$\|\.hg$\|\.svn$\|build',
                 \ 'file': '\.exe$\|\.so$\|\.dll$\|\.pyc$' }
 
-            " On Windows use "dir" as fallback command.
-            if WINDOWS()
-                let s:ctrlp_fallback = 'dir %s /-n /b /s /a-d'
-            elseif executable('ag')
+            if executable('ag')
                 let s:ctrlp_fallback = 'ag %s --nocolor -l -g ""'
             elseif executable('ack-grep')
                 let s:ctrlp_fallback = 'ack-grep %s --nocolor -f'
             elseif executable('ack')
                 let s:ctrlp_fallback = 'ack %s --nocolor -f'
+            " On Windows use "dir" as fallback command.
+            elseif WINDOWS()
+                let s:ctrlp_fallback = 'dir %s /-n /b /s /a-d'
             else
                 let s:ctrlp_fallback = 'find %s -type f'
+            endif
+            if exists("g:ctrlp_user_command")
+                unlet g:ctrlp_user_command
             endif
             let g:ctrlp_user_command = {
                 \ 'types': {
@@ -601,24 +683,14 @@
     " TagBar {
         if isdirectory(expand("~/.vim/bundle/tagbar/"))
             nnoremap <silent> <leader>tt :TagbarToggle<CR>
-
-            " If using go please install the gotags program using the following
-            " go install github.com/jstemmer/gotags
-            " And make sure gotags is in your path
-            let g:tagbar_type_go = {
-                \ 'ctagstype' : 'go',
-                \ 'kinds'     : [  'p:package', 'i:imports:1', 'c:constants', 'v:variables',
-                    \ 't:types',  'n:interfaces', 'w:fields', 'e:embedded', 'm:methods',
-                    \ 'r:constructor', 'f:functions' ],
-                \ 'sro' : '.',
-                \ 'kind2scope' : { 't' : 'ctype', 'n' : 'ntype' },
-                \ 'scope2kind' : { 'ctype' : 't', 'ntype' : 'n' },
-                \ 'ctagsbin'  : 'gotags',
-                \ 'ctagsargs' : '-sort -silent'
-                \ }
         endif
     "}
 
+    " Rainbow {
+        if isdirectory(expand("~/.vim/bundle/rainbow/"))
+            let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
+        endif
+    "}
 
     " Fugitive {
         if isdirectory(expand("~/.vim/bundle/vim-fugitive/"))
@@ -709,7 +781,7 @@
                     smap <C-k> <Plug>(neosnippet_expand_or_jump)
                 endif
                 if exists('g:spf13_noninvasive_completion')
-                    iunmap <CR>
+                    inoremap <CR> <CR>
                     " <ESC> takes you out of insert mode
                     inoremap <expr> <Esc>   pumvisible() ? "\<C-y>\<Esc>" : "\<Esc>"
                     " <CR> accepts first, then sends the <CR>
@@ -734,7 +806,7 @@
 
                     " <CR>: close popup
                     " <s-CR>: close popup and save indent.
-                    inoremap <expr><s-CR> pumvisible() ? neocomplete#smart_close_popup()"\<CR>" : "\<CR>"
+                    inoremap <expr><s-CR> pumvisible() ? neocomplete#smart_close_popup()."\<CR>" : "\<CR>"
 
                     function! CleverCr()
                         if pumvisible()
@@ -749,8 +821,8 @@
                         endif
                     endfunction
 
-                    " <CR> close popup and save indent or expand snippet 
-                    imap <expr> <CR> CleverCr() 
+                    " <CR> close popup and save indent or expand snippet
+                    imap <expr> <CR> CleverCr()
                     " <C-h>, <BS>: close popup and delete backword char.
                     inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
                     inoremap <expr><C-y> neocomplete#smart_close_popup()
@@ -764,7 +836,7 @@
                 function! CleverTab()
                     if pumvisible()
                         return "\<C-n>"
-                    endif 
+                    endif
                     let substr = strpart(getline('.'), 0, col('.') - 1)
                     let substr = matchstr(substr, '[^ \t]*$')
                     if strlen(substr) == 0
@@ -822,7 +894,7 @@
                 imap <C-k> <Plug>(neosnippet_expand_or_jump)
                 smap <C-k> <Plug>(neosnippet_expand_or_jump)
                 if exists('g:spf13_noninvasive_completion')
-                    iunmap <CR>
+                    inoremap <CR> <CR>
                     " <ESC> takes you out of insert mode
                     inoremap <expr> <Esc>   pumvisible() ? "\<C-y>\<Esc>" : "\<Esc>"
                     " <CR> accepts first, then sends the <CR>
@@ -856,12 +928,12 @@
                         endif
                     endfunction
 
-                    " <CR> close popup and save indent or expand snippet 
+                    " <CR> close popup and save indent or expand snippet
                     imap <expr> <CR> CleverCr()
 
                     " <CR>: close popup
                     " <s-CR>: close popup and save indent.
-                    inoremap <expr><s-CR> pumvisible() ? neocomplcache#close_popup()"\<CR>" : "\<CR>"
+                    inoremap <expr><s-CR> pumvisible() ? neocomplcache#close_popup()."\<CR>" : "\<CR>"
                     "inoremap <expr><CR> pumvisible() ? neocomplcache#close_popup() : "\<CR>"
 
                     " <C-h>, <BS>: close popup and delete backword char.
@@ -978,7 +1050,7 @@
 
         " See `:echo g:airline_theme_map` for some more choices
         " Default in terminal vim is 'dark'
-        if isdirectory(expand("~/.vim/bundle/vim-airline/"))
+        if isdirectory(expand("~/.vim/bundle/vim-airline-themes/"))
             if !exists('g:airline_theme')
                 let g:airline_theme = 'solarized'
             endif
@@ -989,6 +1061,8 @@
             endif
         endif
     " }
+
+
 
 " }
 
@@ -1112,6 +1186,48 @@
     " e.g. Grep current file for <search_term>: Shell grep -Hn <search_term> %
     " }
 
+    function! s:IsSpf13Fork()
+        let s:is_fork = 0
+        let s:fork_files = ["~/.vimrc.fork", "~/.vimrc.before.fork", "~/.vimrc.bundles.fork"]
+        for fork_file in s:fork_files
+            if filereadable(expand(fork_file, ":p"))
+                let s:is_fork = 1
+                break
+            endif
+        endfor
+        return s:is_fork
+    endfunction
+     
+    function! s:ExpandFilenameAndExecute(command, file)
+        execute a:command . " " . expand(a:file, ":p")
+    endfunction
+     
+    function! s:EditSpf13Config()
+        call <SID>ExpandFilenameAndExecute("tabedit", "~/.vimrc")
+        call <SID>ExpandFilenameAndExecute("vsplit", "~/.vimrc.before")
+        call <SID>ExpandFilenameAndExecute("vsplit", "~/.vimrc.bundles")
+     
+        execute bufwinnr(".vimrc") . "wincmd w"
+        call <SID>ExpandFilenameAndExecute("split", "~/.vimrc.local")
+        wincmd l
+        call <SID>ExpandFilenameAndExecute("split", "~/.vimrc.before.local")
+        wincmd l
+        call <SID>ExpandFilenameAndExecute("split", "~/.vimrc.bundles.local")
+     
+        if <SID>IsSpf13Fork()
+            execute bufwinnr(".vimrc") . "wincmd w"
+            call <SID>ExpandFilenameAndExecute("split", "~/.vimrc.fork")
+            wincmd l
+            call <SID>ExpandFilenameAndExecute("split", "~/.vimrc.before.fork")
+            wincmd l
+            call <SID>ExpandFilenameAndExecute("split", "~/.vimrc.bundles.fork")
+        endif
+     
+        execute bufwinnr(".vimrc.local") . "wincmd w"
+    endfunction
+     
+    execute "noremap " . s:spf13_edit_config_mapping " :call <SID>EditSpf13Config()<CR>"
+    execute "noremap " . s:spf13_apply_config_mapping . " :source ~/.vimrc<CR>"
 " }
 
 " Use fork vimrc if available {
