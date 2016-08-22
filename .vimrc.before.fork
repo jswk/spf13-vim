@@ -1,5 +1,5 @@
 
-let g:spf13_bundle_groups=['general', 'neocomplcache', 'programming', 'python', 'javascript', 'html']
+let g:spf13_bundle_groups=['general', 'neocomplcache', 'programming', 'python', 'javascript', 'html', 'haskell']
 
 " fix terminal colors
 " http://askubuntu.com/questions/67/how-do-i-enable-full-color-support-in-vim
