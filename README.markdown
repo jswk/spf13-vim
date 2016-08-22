@@ -517,51 +517,9 @@ Here's some tips if you've never used VIM before:
 * Certain commands are prefixed with a `<Leader>` key, which by default maps to `\`.
   Spf13-vim uses `let mapleader = ","` to change this to `,` which is in a consistent and
   convenient location.
-* Keyboard [cheat sheet](http://www.viemu.com/vi-vim-cheat-sheet.gif).
+* Keyboard [cheat sheet](http://walking-without-crutches.heroku.com/image/images/vi-vim-cheat-sheet.png).
 
-[![Analytics](https://ga-beacon.appspot.com/UA-7131036-5/spf13-vim/readme)](https://github.com/igrigorik/ga-beacon)
+
+
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/spf13/spf13-vim/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
-
-[Git]:http://git-scm.com
-[Curl]:http://curl.haxx.se
-[Vim]:http://www.vim.org/download.php#pc
-[msysgit]:http://msysgit.github.io
-[Chocolatey]: http://chocolatey.org/
-[spf13-vim package]: https://chocolatey.org/packages/spf13-vim
-[MacVim]:http://code.google.com/p/macvim/
-[spf13-vim]:https://github.com/spf13/spf13-vim
-[contributors]:https://github.com/spf13/spf13-vim/contributors
-
-[Vundle]:https://github.com/gmarik/vundle
-[PIV]:https://github.com/spf13/PIV
-[NERDCommenter]:https://github.com/scrooloose/nerdcommenter
-[Undotree]:https://github.com/mbbill/undotree
-[NERDTree]:https://github.com/scrooloose/nerdtree
-[ctrlp]:https://github.com/kien/ctrlp.vim
-[solarized]:https://github.com/altercation/vim-colors-solarized
-[neocomplete]:https://github.com/shougo/neocomplete
-[Fugitive]:https://github.com/tpope/vim-fugitive
-[Surround]:https://github.com/tpope/vim-surround
-[Tagbar]:https://github.com/majutsushi/tagbar
-[Syntastic]:https://github.com/scrooloose/syntastic
-[vim-easymotion]:https://github.com/Lokaltog/vim-easymotion
-[YouCompleteMe]:https://github.com/Valloric/YouCompleteMe
-[Matchit]:http://www.vim.org/scripts/script.php?script_id=39
-[Tabularize]:https://github.com/godlygeek/tabular
-[EasyMotion]:https://github.com/Lokaltog/vim-easymotion
-[Airline]:https://github.com/bling/vim-airline
-[Powerline]:https://github.com/lokaltog/powerline
-[Powerline Fonts]:https://github.com/Lokaltog/powerline-fonts
-[AutoClose]:https://github.com/spf13/vim-autoclose
-[Ack.vim]:https://github.com/mileszs/ack.vim
-
-[spf13-vim-img]:https://i.imgur.com/UKToY.png
-[spf13-vimrc-img]:https://i.imgur.com/kZWj1.png
-[autocomplete-img]:https://i.imgur.com/90Gg7.png
-[tagbar-img]:https://i.imgur.com/cjbrC.png
-[fugitive-img]:https://i.imgur.com/4NrxV.png
-[nerdtree-img]:https://i.imgur.com/9xIfu.png
-[phpmanual-img]:https://i.imgur.com/c0GGP.png
-[easymotion-img]:https://i.imgur.com/ZsrVL.png
-[airline-img]:https://i.imgur.com/D4ZYADr.png
